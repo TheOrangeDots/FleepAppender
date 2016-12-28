@@ -1,0 +1,57 @@
+# FleepAppender
+FleepAppender is a [Log4j](https://logging.apache.org/log4j) [Appender](https://logging.apache.org/log4j/2.x/manual/appenders.html) for routing log messages to [Fleep](http://fleep.io). 
+
+# Requirements
+- Log4j 1.x (FleepAppender currently does NOT directly support Log4j 2, but should work in Log4j 2 through the [Log4j 1.x bridge](https://logging.apache.org/log4j/2.x/manual/migration.html))
+- Java 8 or higher (Since it depends on [Nashorn](https://en.wikipedia.org/wiki/Nashorn_(JavaScript_engine)))
+- A configured [Fleep Incoming Webhook integration](https://fleep.io/integrations/webhooks/)
+
+# Configuration
+In order to use the FleepAppender, FleepAppender.jar needs to be added to the classpath of the Java application for which it is being used and Log4j should be configured to use the FleepAppender.
+
+#### Adding FleepAppender.jar to the classpath:
+The FleepAppender.jar can be dowloaded from the [releases section](https://github.com/TheOrangeDots/FleepAppender/releases). Only the dowload of FleepAppender.jar is required. The downloaded FleepAppender.jar needs to be put on the classpath of the Java application that is to use the Fleep Appender. 
+
+>#### ADDING FleepAppender.jar TO THE CLASSPATH FOR [SERVOY](http://servoy.com) USERS:
+>When deploying your Servoy solution using WAR deployment, the FleepAppender.jar can be added to `application_server/lib` in the Servoy Developer installation from where the WAR export is made.
+>
+>When using a regular Servoy Application Server for deploying your solution, Servoy has a classpath where each library is specified specifically. Just adding FleepAppender.jar to the `application_server/lib` folder is not sufficient. A good option to add FleepAppender.jar to the classpath would be adding a subfolder called 'extra' to the `application_server/lib` folder and placing the FleepAppender.jar into this newly created folder. Once this is done, the classpath needs to be edited to include this new folder:
+>- When using the [Service Wrapper](https://wiki.servoy.com/display/public/DOCS/Running+the+Server+As+a+Service), open `/application_server/service/wrapper.conf` in a text editor and add `wrapper.java.classpath.xx=lib\extra\FleepAppender.jar`, replacing xx with an appropriate incremental number (based in the already existing wrapper.java.classpath.xx entries)
+>- When not using the Service Wrapper, the classpath is located in `application_server/servoy_server.bat/sh`: open this file in a text editor and add `lib/extra/*` to the classpath (making sure to use a semi-colon to properly separate the new entry form the existing entries)
+
+>If you'd like a cleaner way to include the Fleep appender in your Servoy Application Server, please vote for: [Provide a way to include extra JARs in the Servoy app server, without having to modify Servoy's .bat/.sh files](https://support.servoy.com/browse/SVY-9450) in the Servoy Support system
+
+#### Configuring Log4j to utilize the Fleep Appender
+After adding FleepAppender.jar to the classpath, Log4j needs to be configured to correctly connect to Fleep and route logmessages to it. Appenders for Log4j are configured using their className and the className for the Fleep Appender is `com.tod.utils.logging.FleepAppender`.
+
+Besides generic appender configuration options, the Fleep Appender comes with the following additional configuration options:
+- UserName: Overrides the userName configured in the Incoming Webhook in Fleep
+
+Log4j has several ways it can be configured, one of them being through a .properties file. Below an example of such a configuration, which routes only ERROR level logmessages to Fleep:
+```
+log4j.appender.fleep=com.tod.utils.logging.FleepAppender
+log4j.appender.fleep.Threshold=ERROR
+log4j.appender.fleep.Url=https\://fleep.io/hook/XXXXXXXXXXXXXXXXXX
+log4j.appender.fleep.UserName=Servoy
+```
+
+The Fleep Appender also needs to be added to a logger, for example the root logger:
+```
+log4j.rootCategory=WARN, console, fleep
+```
+Note that the Fleep Appender can just be added to the list of any existing appenders on the logger, as in the example above where `console` is an existing appender. 
+
+:bulb: If there are specific messages that should not be send to Fleep, a [Log4j](https://logging.apache.org/log4j) [Filter](http://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/spi/Filter.html) can be used to filter them out. For example, to filter out all messages related to column names being too long, also add the following to the .properties file:
+```
+log4j.appender.fleep.filter.1=org.apache.log4j.varia.StringMatchFilter
+log4j.appender.fleep.filter.1.AcceptOnMatch=false
+log4j.appender.fleep.filter.1.StringToMatch=is too long (>30 chars) -- this is not supported by all databases
+```
+# Feature Requests & Bugs
+Found a bug or would like to see a new feature implemented? Raise an issue in the [Issue Tracker](https://github.com/TheOrangeDots/FleepAppender/issues)
+
+# Contributing
+Eager to fix a bug or introduce a new feature? Clone the repository and issue a pull request
+
+# License
+FleepAppender is licensed under MIT License

@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Bundle-Name: Fleep Appender
+Bundle-Vendor: The Orange Dots
+Bundle-Version: 1.0.0
+Bundle-SymbolicName: FleepAppender
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
