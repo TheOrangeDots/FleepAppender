@@ -104,7 +104,7 @@ public class FleepAppender extends AppenderSkeleton {
 			
 			String[] stack = event.getThrowableStrRep();
 			if (stack != null && stack.length > 0) {
-				content.append("*\n:::\n");
+				content.append("\n:::\n");
 				content.append(String.join("\n", stack));
 			}
 			
